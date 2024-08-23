@@ -1,5 +1,5 @@
 import os
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
@@ -18,8 +18,8 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         email = payload.get("sub")
 
         if email is None:
-            raise HTTPException(status_code=403, detail="Token is invalid or expired")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid or expired")
         
         return payload
     except JWTError:
-        raise HTTPException(status_code=403, detail="Token is invalid or expired")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid or expired")
