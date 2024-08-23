@@ -3,14 +3,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from pydantic import BaseModel
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from jose import JWTError, jwt
 from dotenv import load_dotenv
 
 from database.models import Users
 from database.config import SessionLocal
+
+from helpers.create_access_token import create_access_token
+from helpers.verify_token import verify_token
 
 
 load_dotenv()
@@ -61,29 +63,6 @@ def authenticate_user(email: str, password: str, db: db_dependency):
         return False
     
     return user
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, ACCESS_TOKEN_SECRET_KEY, algorithm=ALGORITHM)
-
-    return encoded_jwt
-
-def verify_token(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = jwt.decode(token, ACCESS_TOKEN_SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-
-        if email is None:
-            raise HTTPException(status_code=403, detail="Token is invalid or expired")
-        
-        return payload
-    except JWTError:
-        raise HTTPException(status_code=403, detail="Token is invalid or expired")
 
 @router.post('/token')
 def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):

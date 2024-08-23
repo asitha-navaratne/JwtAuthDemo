@@ -7,12 +7,13 @@ from database.config import engine
 
 from routers import auth
 
+
 app = FastAPI()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 origins = [
-    "https://localhost:3000"
+    "https://localhost:5173"
 ]
 
 app.add_middleware(
