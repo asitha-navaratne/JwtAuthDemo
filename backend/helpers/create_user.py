@@ -4,6 +4,7 @@ from passlib.context import CryptContext
 from database.models import Users
 from models.CreateUserModel import CreateUserModel
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_user(user: CreateUserModel, db: Session) -> int:
